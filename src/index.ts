@@ -1,29 +1,12 @@
-import Logger from "https://deno.land/x/logger@v1.1.6/logger.ts";
-import { Context, Telegraf } from "npm:telegraf";
+import { Context, Telegraf } from "telegraf";
 
-const token: string = Deno.env.get("EGOR_TOKEN") || "";
-const targetChatId: number = parseInt(Deno.env.get("TARGET_CHAT_ID") || "");
+const token: string = process.env.EGOR_TOKEN || "";
+const targetChatId: number = parseInt(process.env.TARGET_CHAT_ID || "");
 
-const l: Logger = new Logger();
 const bot: Telegraf = new Telegraf(token);
 
 bot.use((ctx: Context, next: VoidFunction) => {
-  try {
-    return next();
-  } catch (error) {
-    ctx.reply(error);
-    l.error(error);
-  }
-});
-
-bot.use((ctx: Context, next: VoidFunction) => {
-  l.info(
-    ctx.from?.username,
-    ctx.chat?.id,
-    ctx.chat?.type,
-    ":",
-    ctx.text,
-  );
+  console.log(ctx.from?.username, ctx.chat?.id, ctx.chat?.type, ":", ctx.text);
   return next();
 });
 
@@ -48,7 +31,7 @@ bot.on("message", (ctx: Context) => {
 
 bot.launch();
 
-Deno.addSignalListener("SIGINT", () => bot.stop());
-Deno.addSignalListener("SIGTERM", () => bot.stop());
+process.on("SIGINT", () => bot.stop());
+process.on("SIGTERM", () => bot.stop());
 
-l.info("started");
+console.log("started");
